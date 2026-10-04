@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PctLens - percent-encoding, side by side</title>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; background:#1a0f1e; color:#f8eefb; line-height:1.5; }
+  .wrap { max-width:700px; margin:0 auto; padding:26px 16px 50px; }
+  h1 { font-size:28px; } h1 span { color:#f0abfc; }
+  .sub { color:#cdb9d4; margin:6px 0 16px; }
+  .card { background:#2a1930; border-radius:14px; padding:14px; margin-bottom:12px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px; }
+  label { font-size:12px; color:#cdb9d4; display:block; margin-bottom:3px; }
+  input,select { width:100%; background:#1a0f1e; color:#f8eefb; border:1px solid #5f4a66; border-radius:8px; padding:8px; font-size:15px; font-family:inherit; }
+  button { background:#86198f; color:#f8eefb; border:0; padding:8px 14px; border-radius:8px; cursor:pointer; font-size:14px; margin-right:6px; margin-top:10px; }
+  table { width:100%; border-collapse:collapse; } td,th { text-align:left; padding:8px 4px; border-bottom:1px solid #46344c; } th { font-size:12px; color:#cdb9d4; font-weight:600; }
+  td.v { font-size:22px; font-weight:800; color:#f0abfc; } tr.me td.v { color:#f8eefb; }
+  .stats { display:flex; gap:22px; flex-wrap:wrap; margin-top:12px; } .stats b { display:block; font-size:20px; } .muted { color:#cdb9d4; font-size:13px; }
+  .err { color:#ff9c8a; } .note { font-size:12.5px; color:#a38ead; margin-top:6px; }
+
+  td.v { font-size:17px; } td, th { font-size:14px; } .bar { height:10px; background:#1a0f1e; border-radius:6px; overflow:hidden; margin-top:6px; } .bar i { display:block; height:100%; background:#f0abfc; } .bar i.over { background:#ff7b72; } .no { color:#ff9c8a; }
+  .cb { display:inline-flex; align-items:center; gap:4px; margin-right:12px; font-size:14px; color:#f8eefb; } .cb input { width:auto; } .big { font-family:monospace; font-size:26px; font-weight:800; color:#f0abfc; } td.v.m { font-family:monospace; }
+  textarea { width:100%; background:#1a0f1e; color:#f8eefb; border:1px solid #5f4a66; border-radius:8px; padding:8px; font-size:14px; font-family:monospace; min-height:110px; } .ok { color:#86efac; font-weight:700; } .no { color:#ff9c8a; } td.m { font-family:monospace; } .chip { display:inline-block; font-family:monospace; background:#1a0f1e; border-radius:6px; padding:2px 6px; margin:2px 4px 2px 0; }
+  textarea { width:100%; background:#1a0f1e; color:#f8eefb; border:1px solid #5f4a66; border-radius:8px; padding:8px; font-size:13px; font-family:monospace; min-height:130px; } .badge { display:inline-block; font-weight:800; padding:4px 12px; border-radius:20px; background:#1a0f1e; } .bar { height:14px; background:#1a0f1e; border-radius:8px; position:relative; margin:12px 0 6px; overflow:hidden; } .bar i.f { position:absolute; left:0; top:0; bottom:0; background:#c026d3; } .bar i.n { position:absolute; top:0; bottom:0; width:3px; background:#fff; }
+  .seg { display:inline-block; height:22px; background:#c026d3; border-radius:4px; margin:2px 2px 2px 0; vertical-align:middle; } .seg.last { background:#86198f; } .chip { display:inline-block; font-family:monospace; background:#1a0f1e; border-radius:6px; padding:2px 8px; margin:2px 4px 2px 0; font-size:16px; }
+.row{padding:9px 0;border-top:1px solid #46344c}.row b{font-size:13px}.row small{display:block;color:#a38ead;margin:2px 0 4px}.val{font-family:ui-monospace,Menlo,monospace;font-size:13px;word-break:break-all;background:#1a0f1e;border-radius:6px;padding:6px 8px;display:block}.val.same{opacity:.7}.tag2{display:inline-block;font-size:11px;border-radius:4px;padding:1px 6px;margin-left:6px;background:#86198f;color:#fff}.warn{color:#fbbf24;font-size:13px;margin-top:6px}.bad{color:#f87171;font-size:13px;margin-top:6px}textarea{font-family:ui-monospace,Menlo,monospace;font-size:13px;min-height:64px}.chk{display:flex;gap:8px;align-items:center;margin-top:8px;font-size:14px}.chk input{width:auto}td.m{font-family:ui-monospace,Menlo,monospace}</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Pct<span>Lens</span></h1>
+  <div class="sub">One string, ten encoders: RFC 3986, encodeURIComponent, encodeURI, form encoding and the WHATWG URL percent-encode sets. See what each one leaves alone, and decode with the plus-sign and double-encoding traps flagged.</div>
+  <div class="card">
+    <label>Text to encode</label>
+    <textarea id="t" spellcheck="false"></textarea>
+    <div><button id="p1">Query value</button><button id="p2">Unicode file name</button><button id="p3">Reserved characters</button></div>
+    <div id="err" class="err" style="margin-top:6px"></div>
+  </div>
+  <div class="card"><div id="enc"></div></div>
+  <div class="card"><h2 style="margin:0 0 8px;font-size:15px">Characters</h2><div id="chars"></div></div>
+  <div class="card">
+    <h2 style="margin:0 0 8px;font-size:15px">Decode</h2>
+    <label>Percent-encoded text</label>
+    <textarea id="d" spellcheck="false"></textarea>
+    <div class="chk"><input type="checkbox" id="plus"><label for="plus" style="margin:0">Form data: read + as a space (query strings from HTML forms)</label></div>
+    <div><button id="d1">Double-encoded</button><button id="d2">Plus sign</button><button id="d3">Bad UTF-8</button><button id="d4">Spec example</button></div>
+    <div id="dout" style="margin-top:8px"></div>
+  </div>
+  <div class="note">Sets and the percent-decode algorithm follow the WHATWG URL Standard (fetched and read); the unreserved set follows RFC 3986; encodeURI and encodeURIComponent follow the behavior of Node and browsers (checked against Node on 1500 random strings). Text is always encoded as UTF-8; the legacy encodings the standard also describes (Shift_JIS and others) are not modelled. The path set here includes ^ as the fetched standard says; Node 22's own URL parser does not encode it yet, so a browser may differ on that one character. Lone surrogates are replaced with U+FFFD before encoding. Runs in your browser, nothing is sent anywhere.</div>
+</div>
+<script src="engine.js"></script>
+<script>
+(function () {
+  var P = window.PctLens, $ = function (i) { return document.getElementById(i); };
+  function esc(s) { return String(s).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); }
+  var TIPS = { rfc3986: 'Query value, path segment, or any single piece you build yourself', jsComponent: 'Same job in JavaScript; fine for values', jsUri: 'Only for a complete URL that is already well formed', form: 'HTML form bodies and ?a=b query strings read by form parsers', component: 'URL parser view of a component', userinfo: '', path: '', specialQuery: '', query: '', fragment: '' };
+  var PRE = { p1: "Say what\u203D a+b=c&d~e's", p2: 'caf\u00e9 menu (final) #2.pdf', p3: ":/?#[]@!$&'()*+,;=%" };
+  Object.keys(PRE).forEach(function (k) { $(k).onclick = function () { $('t').value = PRE[k]; run(); }; });
+  var DP = { d1: ['name%2520with%2520spaces%252Fand%252Fslashes', false], d2: ['a+b%2Bc+d', true], d3: ['caf%E9 %E2%80', false], d4: ['\u203D%25%2E%25%s%1G', false] };
+  Object.keys(DP).forEach(function (k) { $(k).onclick = function () { $('d').value = DP[k][0]; $('plus').checked = DP[k][1]; run(); }; });
+  function run() {
+    var t = $('t').value, e = $('enc'), c = $('chars');
+    if (!t) { $('err').textContent = 'Type or paste some text, or press a preset.'; e.innerHTML = ''; c.innerHTML = ''; }
+    else {
+      $('err').textContent = '';
+      var all = P.encodeAll(t), base = all.rfc3986, h = '';
+      P.ENCODERS.forEach(function (en) {
+        var v = all[en.id];
+        h += '<div class="row"><b>' + esc(en.name) + '</b>' + (v === t ? '<span class="tag2">unchanged</span>' : '') + '<small>' + esc(en.note) + (TIPS[en.id] ? ' Use for: ' + esc(TIPS[en.id]) + '.' : '') + '</small><span class="val' + (v === base ? ' same' : '') + '">' + esc(v) + '</span></div>';
+      });
+      e.innerHTML = h;
+      var rows = '<table><tr><td>Char</td><td>UTF-8</td><td>Role</td><td>Encoded by</td></tr>';
+      P.chars(t).slice(0, 60).forEach(function (x) { rows += '<tr><td class="m">' + (x.cp < 33 || x.cp === 127 ? 'U+' + x.cp.toString(16).toUpperCase().padStart(4, '0') : esc(x.ch)) + '</td><td class="m">' + x.bytes + '</td><td>' + (x.unreserved ? 'unreserved' : x.reserved ? 'reserved' : x.cp > 127 ? 'non-ASCII' : 'other') + '</td><td>' + (x.encodedIn.length ? x.encodedIn.join(', ') : 'none of the WHATWG sets') + '</td></tr>'; });
+      c.innerHTML = rows + '</table>' + (Array.from(t).length > 60 ? '<div class="muted">First 60 characters shown.</div>' : '');
+    }
+    var d = $('d').value, o = $('dout');
+    if (!d) { o.innerHTML = '<div class="muted">Paste percent-encoded text to decode it.</div>'; return; }
+    var r = P.decode(d, $('plus').checked), h2 = '<span class="val">' + esc(r.text) + '</span>';
+    if (r.decodedCount) h2 += '<div class="muted">' + r.decodedCount + ' sequence' + (r.decodedCount > 1 ? 's' : '') + ' decoded.</div>';
+    if (!r.validUtf8) h2 += '<div class="bad">The decoded bytes are not valid UTF-8 (shown with replacement characters). The text was probably encoded in another character set such as Latin-1.</div>';
+    if (r.malformed) h2 += '<div class="warn">' + r.malformed + ' malformed % sequence' + (r.malformed > 1 ? 's' : '') + ' (not followed by two hex digits) kept as typed, which is what the URL Standard does.</div>';
+    if (r.stillEncoded) h2 += '<div class="warn">The result still contains %XX sequences: this looks double-encoded. Decode once more only if that is what you expect.</div>';
+    if (P.hasPlus(d) && !$('plus').checked) h2 += '<div class="muted">The input has + signs, kept as plus. In form data they mean a space: tick the box above if this came from a form or a query string.</div>';
+    o.innerHTML = h2;
+  }
+  ['t', 'd'].forEach(function (i) { $(i).oninput = run; }); $('plus').onchange = run;
+  $('p1').onclick(); $('d1').onclick();
+})();
+</script>
+</body>
+</html>
