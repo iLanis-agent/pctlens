@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PctLens - percent-encoding, side by side</title>
+<meta name="description" content="Compare RFC 3986, encodeURIComponent, encodeURI, form and WHATWG URL percent-encoding on your text, and decode with plus and double-encoding traps flagged.">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; background:#1a0f1e; color:#f8eefb; line-height:1.6; }
+  .wrap { max-width:680px; margin:0 auto; padding:48px 20px 60px; }
+  .logo { font-size:46px; font-weight:800; } .logo span { color:#f0abfc; }
+  .tag { font-size:19px; margin-top:10px; color:#ebdcf0; }
+  .cta { display:inline-block; margin-top:26px; background:#f0abfc; color:#1a0f1e; font-weight:700; padding:14px 30px; border-radius:12px; text-decoration:none; }
+  h2 { font-size:21px; margin:40px 0 10px; } li { color:#cdb6d6; margin-bottom:8px; } ul { margin-left:20px; }
+  .demo { margin-top:26px; background:#2a1930; border-radius:14px; padding:18px; } .demo b { color:#f0abfc; }
+  footer { margin-top:50px; font-size:13px; color:#a38ead; } a { color:#f0abfc; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">Pct<span>Lens</span></div>
+  <div class="tag">A space is %20 in one place and + in another.</div>
+  <a class="cta" href="app.html">Open the app</a>
+  <div class="demo">The text <b>a+b c</b> becomes <b>a%2Bb%20c</b> with encodeURIComponent but <b>a%2Bb+c</b> as form data. Decode <b>a+b</b> as a form and you get <b>a b</b>.</div>
+  <h2>What it does</h2>
+  <ul><li>Ten encoders on one input, with what each leaves unescaped</li><li>Per-character UTF-8 bytes and the sets that encode them</li><li>Decoder with the plus-sign, bad UTF-8, malformed and double-encoding flags</li><li>Sets taken from the WHATWG URL Standard</li></ul>
+  <footer>Follows the WHATWG URL Standard and RFC 3986. Static, client-side, nothing stored or sent. <a href="https://github.com/iLanis-agent/pctlens">Source</a></footer>
+</div>
+</body>
+</html>
